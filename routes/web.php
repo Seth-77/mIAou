@@ -6,6 +6,7 @@ use App\Http\Controllers\AskController;
 Route::middleware(['auth'])->group(function () {
     Route::get('/ask', [AskController::class, 'index'])->name('ask.index');
     Route::post('/ask', [AskController::class, 'ask'])->name('ask.post');
+    Route::get('/chat', [AskController::class, 'index'])
 });
 
 
