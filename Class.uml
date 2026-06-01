@@ -1,0 +1,38 @@
+@startuml
+class Conversation {
+  id: int
+  title : string
+  favorite_ia: string
+  create_at : timestamp
+  update_at : timestamp
+}
+
+
+class Message {
+  id: int
+  image : array
+  create_at : timestamp
+  update_at : timestamp
+}
+
+class Image {
+  id: int
+  url: url
+  is_main: boolean
+  display_order: int
+}
+
+class Users {
+  id: int
+  name: string
+}
+
+
+
+ Conversation "1" -- "1..*" Message : contient >
+ Users "1" -- "0..*" Conversation : possède >
+ Message "1" -- "0..*" Image : contient >
+' Project "0..*" -- "0..1" Experience : < created during
+' PersonalInfo "1" -- "0..*" SocialLink : has >
+
+@enduml
