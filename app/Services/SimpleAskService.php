@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Http;
  */
 class SimpleAskService
 {
-    public const DEFAULT_MODEL = 'openai/gpt-5-mini';
+    public const DEFAULT_MODEL = 'deepseek/deepseek-chat-v3.1';
 
     private string $apiKey;
     private string $baseUrl;
@@ -47,7 +47,7 @@ class SimpleAskService
 
             return collect($response->json('data', []))
                 ->sortBy('name')
-                ->map(fn (array $model): array => [
+                ->map(fn(array $model): array => [
                     'id' => $model['id'],
                     'name' => $model['name'],
                     'description' => $model['description'] ?? '',
@@ -91,8 +91,7 @@ class SimpleAskService
                 'model' => $model,
                 'messages' => $messages,
                 'temperature' => $temperature,
-            ])
-        ;
+            ]);
 
         // Gestion des erreurs
         if ($response->failed()) {
