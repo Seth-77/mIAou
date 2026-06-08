@@ -23,6 +23,10 @@ const sidebarNavItems: NavItem[] = [
         title: 'Appearance',
         href: editAppearance(),
     },
+    {
+        title: 'Instructions',
+        href: '/settings/instructions',
+    },
 ];
 
 const { isCurrentOrParentUrl } = useCurrentUrl();
@@ -30,6 +34,12 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
 
 <template>
     <div class="px-4 py-6">
+        <Link
+            href="/chat"
+            class="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
+        >
+            ← Retour au chat
+        </Link>
         <Heading
             title="Settings"
             description="Manage your profile and account settings"

@@ -3,8 +3,6 @@ import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import ChatLoader from '@/components/ChatLoader.vue'
 
-//defineOptions({ layout: null })
-
 const props = defineProps({
     conversations: Array,
     currentConversation: Object,
@@ -93,6 +91,16 @@ const deleteConversation = (id) => {
                     Aucune conversation
                 </p>
             </nav>
+
+            <!-- Pied de sidebar : accès aux réglages -->
+            <div class="border-t border-neutral-800 p-2">
+                <Link
+                    href="/settings"
+                    class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-neutral-400 transition hover:bg-neutral-800 hover:text-neutral-100"
+                >
+                    ⚙️ Settings
+                </Link>
+            </div>
         </aside>
 
         <!-- Zone principale : messages -->

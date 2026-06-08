@@ -23,7 +23,7 @@ class ConversationController extends Controller
     public function show(Conversation $conversation, SimpleAskService $service)
     {
         $messages = $conversation->messages()
-            ->orderBy('created_at')
+            ->orderBy('updated_at')
             ->get();
 
         return Inertia::render('Chat/Index', [
