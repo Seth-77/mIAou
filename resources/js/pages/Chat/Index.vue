@@ -2,6 +2,7 @@
 import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import ChatLoader from '@/components/ChatLoader.vue'
+import { ref } from 'vue'
 
 const props = defineProps({
     conversations: Array,
@@ -42,6 +43,8 @@ const deleteConversation = (id) => {
         })
     }
 }
+
+const sidebarOpen = ref(true)
 </script>
 
 <template>
@@ -49,13 +52,16 @@ const deleteConversation = (id) => {
 
     <div class="flex h-[calc(100vh)] overflow-hidden bg-neutral-950 text-neutral-100">
         <!-- Sidebar : liste des conversations -->
-        <aside class="flex w-64 flex-col border-r border-neutral-800 bg-neutral-900">
+        <aside
+            class="flex flex-col border-r border-neutral-800 bg-neutral-900 transition-all duration-300"
+            :class="sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'"
+        >
             <div class="border-b border-neutral-800 p-4">
                 <Link
                     href="/chat"
                     method="post"
                     as="button"
-                    class="block w-full rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-medium text-white transition hover:bg-blue-700"
+                    class="block w-full cursor-pointer rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-medium text-white transition hover:bg-blue-700"
                 >
                     + Nouvelle conversation
                 </Link>
@@ -77,7 +83,7 @@ const deleteConversation = (id) => {
 
                     <button
                         @click="deleteConversation(conv.id)"
-                        class="shrink-0 rounded p-1 text-neutral-500 opacity-0 transition hover:text-red-400 group-hover:opacity-100"
+                        class="shrink-0 cursor-pointer rounded p-1 text-neutral-500 opacity-0 transition hover:text-red-400 group-hover:opacity-100"
                         title="Supprimer"
                     >
                         🗑
@@ -92,19 +98,38 @@ const deleteConversation = (id) => {
                 </p>
             </nav>
 
-            <!-- Pied de sidebar : accès aux réglages -->
-            <div class="border-t border-neutral-800 p-2">
+            <!-- Pied de sidebar : réglages + déconnexion -->
+            <div class="space-y-1 border-t border-neutral-800 p-2">
                 <Link
-                    href="/settings"
+                    href="/settings/instructions"
                     class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-neutral-400 transition hover:bg-neutral-800 hover:text-neutral-100"
                 >
                     ⚙️ Settings
+                </Link>
+                <Link
+                    href="/logout"
+                    method="post"
+                    as="button"
+                    class="flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-neutral-400 transition hover:bg-neutral-800 hover:text-red-400"
+                >
+                    🚪 Déconnexion
                 </Link>
             </div>
         </aside>
 
         <!-- Zone principale : messages -->
         <main class="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <!-- Barre supérieure toujours visible : bouton repli sidebar -->
+            <div class="flex items-center border-b border-neutral-800 p-2">
+                <button
+                    @click="sidebarOpen = !sidebarOpen"
+                    class="cursor-pointer rounded p-2 text-neutral-400 transition hover:bg-neutral-800 hover:text-neutral-100"
+                    title="Replier/déplier le menu"
+                >
+                    ☰
+                </button>
+            </div>
+
             <!-- Aucune conversation sélectionnée -->
             <div
                 v-if="!props.currentConversation"
@@ -175,7 +200,7 @@ const deleteConversation = (id) => {
                         <button
                             @click="sendMessage"
                             :disabled="form.processing"
-                            class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+                            class="cursor-pointer rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
                         >
                             {{ form.processing ? '...' : 'Envoyer' }}
                         </button>

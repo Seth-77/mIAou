@@ -23,7 +23,7 @@ Route::middleware(['auth'])->group(function () {
 Route::inertia('/', 'Welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+    Route::get('dashboard', fn() => redirect('/chat'))->name('dashboard');
 });
 
 require __DIR__ . '/settings.php';
