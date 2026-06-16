@@ -45,7 +45,7 @@ class MessageController extends Controller
             'content' => $answer,
         ]);
 
-        // 5. Générer le titre 
+        // 5. Générer le titre
         if (is_null($conversation->title)) {
             $conversation->update([
                 'title' => $this->generateTitle($validated['content'], $answer, $service, $conversation->model),
@@ -63,14 +63,17 @@ class MessageController extends Controller
         $prompt = [
             [
                 'role' => 'user',
-                'content' => "Résume cette conversation en un titre court (5 mots maximum), sans guillemets ni ponctuation finale.\n\n"
+                'content' => "Génère un titre court et neutre (5 mots maximum) qui résume le sujet de cette conversation. "
+                    . "Reste factuel : pas de mise en scène, pas de vocabulaire de jeu de rôle, pas de guillemets ni de ponctuation finale.\n\n"
                     . "Question : {$question}\n"
                     . "Réponse : {$answer}",
             ],
         ];
 
         try {
-            $title = trim($service->sendMessage($prompt, $model));
+            // withSystemPrompt: false → la personnalité "Maître du Jeu" ne s'applique pas
+            // à la génération du titre, qui reste ainsi sobre et lisible dans la liste.
+            $title = trim($service->sendMessage($prompt, $model, withSystemPrompt: false));
             return mb_substr($title, 0, 80);
         } catch (\Throwable $e) {
             return mb_substr($question, 0, 50);
