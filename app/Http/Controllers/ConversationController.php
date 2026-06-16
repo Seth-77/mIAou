@@ -20,8 +20,9 @@ class ConversationController extends Controller
         ]);
     }
 
-    public function show(Conversation $conversation, SimpleAskService $service)
+    public function show(int $id, SimpleAskService $service)
     {
+        $conversation = Auth::user()->conversations()->findOrFail($id);
         $messages = $conversation->messages()
             ->orderBy('updated_at')
             ->get();
