@@ -13,10 +13,11 @@ withDefaults(defineProps<Props>(), {
 <template>
     <header :class="variant === 'small' ? '' : 'mb-8 space-y-0.5'">
         <h2
+            class="font-[family-name:var(--font-display)] tracking-wide text-primary"
             :class="
                 variant === 'small'
-                    ? 'mb-0.5 text-base font-medium'
-                    : 'text-xl font-semibold tracking-tight'
+                    ? 'mb-0.5 text-base font-bold'
+                    : 'text-xl font-bold'
             "
         >
             {{ title }}

@@ -16,14 +16,14 @@ defineProps<{
 
 defineOptions({
     layout: {
-        title: 'Create an account',
-        description: 'Enter your details below to create your account',
+        title: 'Forge ton héros',
+        description: 'Inscris ton nom dans les chroniques de la taverne',
     },
 });
 </script>
 
 <template>
-    <Head title="Register" />
+    <Head title="Inscription" />
 
     <Form
         v-bind="store.form()"
@@ -33,7 +33,7 @@ defineOptions({
     >
         <div class="grid gap-6">
             <div class="grid gap-2">
-                <Label for="name">Name</Label>
+                <Label for="name" class="text-[#e8d9b5]">Nom</Label>
                 <Input
                     id="name"
                     type="text"
@@ -42,13 +42,14 @@ defineOptions({
                     :tabindex="1"
                     autocomplete="name"
                     name="name"
-                    placeholder="Full name"
+                    placeholder="Nom complet"
+                    class="border-[#d4a843]/30 bg-[#1a120b]/60 text-[#e8d9b5] placeholder:text-[#e8d9b5]/40 focus-visible:border-[#d4a843] focus-visible:ring-[#d4a843]/40"
                 />
                 <InputError :message="errors.name" />
             </div>
 
             <div class="grid gap-2">
-                <Label for="email">Email address</Label>
+                <Label for="email" class="text-[#e8d9b5]">Email</Label>
                 <Input
                     id="email"
                     type="email"
@@ -57,57 +58,61 @@ defineOptions({
                     autocomplete="email"
                     name="email"
                     placeholder="email@example.com"
+                    class="border-[#d4a843]/30 bg-[#1a120b]/60 text-[#e8d9b5] placeholder:text-[#e8d9b5]/40 focus-visible:border-[#d4a843] focus-visible:ring-[#d4a843]/40"
                 />
                 <InputError :message="errors.email" />
             </div>
 
             <div class="grid gap-2">
-                <Label for="password">Password</Label>
+                <Label for="password" class="text-[#e8d9b5]">Mot de passe</Label>
                 <PasswordInput
                     id="password"
                     required
                     :tabindex="3"
                     autocomplete="new-password"
                     name="password"
-                    placeholder="Password"
+                    placeholder="Mot de passe"
                     :passwordrules="passwordRules"
+                    class="border-[#d4a843]/30 bg-[#1a120b]/60 text-[#e8d9b5] placeholder:text-[#e8d9b5]/40 focus-visible:border-[#d4a843] focus-visible:ring-[#d4a843]/40"
                 />
                 <InputError :message="errors.password" />
             </div>
 
             <div class="grid gap-2">
-                <Label for="password_confirmation">Confirm password</Label>
+                <Label for="password_confirmation" class="text-[#e8d9b5]">Confirmer le mot de passe</Label>
                 <PasswordInput
                     id="password_confirmation"
                     required
                     :tabindex="4"
                     autocomplete="new-password"
                     name="password_confirmation"
-                    placeholder="Confirm password"
+                    placeholder="Confirmer le mot de passe"
                     :passwordrules="passwordRules"
+                    class="border-[#d4a843]/30 bg-[#1a120b]/60 text-[#e8d9b5] placeholder:text-[#e8d9b5]/40 focus-visible:border-[#d4a843] focus-visible:ring-[#d4a843]/40"
                 />
                 <InputError :message="errors.password_confirmation" />
             </div>
 
             <Button
                 type="submit"
-                class="mt-2 w-full"
+                class="mt-2 w-full border border-[#d4a843] bg-gradient-to-b from-[#b8841f] to-[#8a5e12] tracking-widest text-[#1a120b] uppercase hover:from-[#d4a843] hover:to-[#a06d18]"
+                style="font-family: 'Cinzel', serif; font-weight: 700"
                 tabindex="5"
                 :disabled="processing"
                 data-test="register-user-button"
             >
                 <Spinner v-if="processing" />
-                Create account
+                Sceller le pacte
             </Button>
         </div>
 
-        <div class="text-center text-sm text-muted-foreground">
-            Already have an account?
+        <div class="text-center text-sm text-[#e8d9b5]/70">
+            Déjà membre de la guilde ?
             <TextLink
                 :href="login()"
-                class="underline underline-offset-4"
+                class="text-[#d4a843] underline-offset-4 hover:text-[#f3e6c4]"
                 :tabindex="6"
-                >Log in</TextLink
+                >Reprends ta quête</TextLink
             >
         </div>
     </Form>

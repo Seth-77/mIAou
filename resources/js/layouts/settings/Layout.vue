@@ -12,15 +12,15 @@ import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
     {
-        title: 'Profile',
+        title: 'Profil',
         href: editProfile(),
     },
     {
-        title: 'Security',
+        title: 'Sécurité',
         href: editSecurity(),
     },
     {
-        title: 'Appearance',
+        title: 'Apparence',
         href: editAppearance(),
     },
     {
@@ -38,18 +38,18 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
             href="/chat"
             class="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
         >
-            ← Retour au chat
+            ← Retour à la taverne
         </Link>
         <Heading
-            title="Settings"
-            description="Manage your profile and account settings"
+            title="Le Grimoire"
+            description="Gère ton héros et les arcanes de ton compte"
         />
 
         <div class="flex flex-col lg:flex-row lg:space-x-12">
             <aside class="w-full max-w-xl lg:w-48">
                 <nav
                     class="flex flex-col space-y-1 space-x-0"
-                    aria-label="Settings"
+                    aria-label="Grimoire"
                 >
                     <Button
                         v-for="item in sidebarNavItems"

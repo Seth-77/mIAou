@@ -15,8 +15,8 @@ import { request } from '@/routes/password';
 
 defineOptions({
     layout: {
-        title: 'Log in to your account',
-        description: 'Enter your email and password below to log in',
+        title: 'Reprends ta quête',
+        description: 'Présente ton sceau pour entrer dans la taverne',
     },
 });
 
@@ -27,11 +27,11 @@ defineProps<{
 </script>
 
 <template>
-    <Head title="Log in" />
+    <Head title="Connexion" />
 
     <div
         v-if="status"
-        class="mb-4 text-center text-sm font-medium text-green-600"
+        class="mb-4 text-center text-sm font-medium text-[#7bbf6a]"
     >
         {{ status }}
     </div>
@@ -46,7 +46,7 @@ defineProps<{
     >
         <div class="grid gap-6">
             <div class="grid gap-2">
-                <Label for="email">Email address</Label>
+                <Label for="email" class="text-[#e8d9b5]">Email</Label>
                 <Input
                     id="email"
                     type="email"
@@ -56,20 +56,21 @@ defineProps<{
                     :tabindex="1"
                     autocomplete="email"
                     placeholder="email@example.com"
+                    class="border-[#d4a843]/30 bg-[#1a120b]/60 text-[#e8d9b5] placeholder:text-[#e8d9b5]/40 focus-visible:border-[#d4a843] focus-visible:ring-[#d4a843]/40"
                 />
                 <InputError :message="errors.email" />
             </div>
 
             <div class="grid gap-2">
                 <div class="flex items-center justify-between">
-                    <Label for="password">Password</Label>
+                    <Label for="password" class="text-[#e8d9b5]">Mot de passe</Label>
                     <TextLink
                         v-if="canResetPassword"
                         :href="request()"
-                        class="text-sm"
+                        class="text-sm text-[#d4a843] hover:text-[#f3e6c4]"
                         :tabindex="5"
                     >
-                        Forgot your password?
+                        Sceau oublié ?
                     </TextLink>
                 </div>
                 <PasswordInput
@@ -78,33 +79,40 @@ defineProps<{
                     required
                     :tabindex="2"
                     autocomplete="current-password"
-                    placeholder="Password"
+                    placeholder="Mot de passe"
+                    class="border-[#d4a843]/30 bg-[#1a120b]/60 text-[#e8d9b5] placeholder:text-[#e8d9b5]/40 focus-visible:border-[#d4a843] focus-visible:ring-[#d4a843]/40"
                 />
                 <InputError :message="errors.password" />
             </div>
 
             <div class="flex items-center justify-between">
-                <Label for="remember" class="flex items-center space-x-3">
+                <Label for="remember" class="flex items-center space-x-3 text-[#e8d9b5]">
                     <Checkbox id="remember" name="remember" :tabindex="3" />
-                    <span>Remember me</span>
+                    <span>Se souvenir de moi</span>
                 </Label>
             </div>
 
             <Button
                 type="submit"
-                class="mt-4 w-full"
+                class="mt-4 w-full border border-[#d4a843] bg-gradient-to-b from-[#b8841f] to-[#8a5e12] tracking-widest text-[#1a120b] uppercase hover:from-[#d4a843] hover:to-[#a06d18]"
+                style="font-family: 'Cinzel', serif; font-weight: 700"
                 :tabindex="4"
                 :disabled="processing"
                 data-test="login-button"
             >
                 <Spinner v-if="processing" />
-                Log in
+                Entrer dans la taverne
             </Button>
         </div>
 
-        <div class="text-center text-sm text-muted-foreground">
-            Don't have an account?
-            <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
+        <div class="text-center text-sm text-[#e8d9b5]/70">
+            Pas encore de héros ?
+            <TextLink
+                :href="register()"
+                class="text-[#d4a843] hover:text-[#f3e6c4]"
+                :tabindex="5"
+                >Rejoins l'aventure</TextLink
+            >
         </div>
     </Form>
 </template>

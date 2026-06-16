@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid , MessageCircle } from 'lucide-vue-next';
+import { MessageCircle, Sparkles } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -20,12 +20,12 @@ import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Ask',
+        title: "Consulter l'oracle",
         href: '/ask',
-        icon: MessageCircle,
+        icon: Sparkles,
     },
     {
-        title: 'Chat',
+        title: 'Taverne',
         href: '/chat',
         icon: MessageCircle,
     },

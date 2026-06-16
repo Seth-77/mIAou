@@ -23,20 +23,28 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Poser une question" />
+    <Head title="Consulter l'oracle" />
 
-    <div class="min-h-screen bg-neutral-950 text-neutral-100">
+    <div
+        class="min-h-screen bg-[#1a120b] text-[#e8d9b5]"
+        style="font-family: 'EB Garamond', serif"
+    >
         <div class="mx-auto max-w-3xl space-y-6 px-4 py-10">
-            <h1 class="text-2xl font-bold">Poser une question</h1>
+            <h1
+                class="text-2xl font-bold tracking-wide text-[#d4a843]"
+                style="font-family: 'Cinzel', serif"
+            >
+                Consulter l'oracle
+            </h1>
 
             <!-- Formulaire -->
             <div class="space-y-4">
                 <!-- Sélecteur de modèle -->
                 <div>
-                    <label class="mb-1 block text-sm font-medium">Modèle</label>
+                    <label class="mb-1 block text-sm font-medium text-[#e8d9b5]">Oracle</label>
                     <select
                         v-model="form.model"
-                        class="w-full rounded-md border border-neutral-700 bg-neutral-900 p-2"
+                        class="w-full rounded-md border border-[#d4a843]/40 bg-[#241810] p-2 text-[#e8d9b5]"
                     >
                         <option
                             v-for="model in props.models"
@@ -50,14 +58,14 @@ const submit = () => {
 
                 <!-- Champ question -->
                 <div>
-                    <label class="mb-1 block text-sm font-medium">Votre question</label>
+                    <label class="mb-1 block text-sm font-medium text-[#e8d9b5]">Ta requête</label>
                     <textarea
                         v-model="form.message"
                         rows="4"
-                        class="w-full rounded-md border border-neutral-700 bg-neutral-900 p-2"
-                        placeholder="Posez votre question..."
+                        class="w-full rounded-md border border-[#d4a843]/40 bg-[#241810] p-2 text-[#e8d9b5] placeholder:text-[#e8d9b5]/40"
+                        placeholder="Pose ta question à l'oracle..."
                     />
-                    <p v-if="form.errors.message" class="mt-1 text-sm text-red-500">
+                    <p v-if="form.errors.message" class="mt-1 text-sm text-[#d9603a]">
                         {{ form.errors.message }}
                     </p>
                 </div>
@@ -66,24 +74,25 @@ const submit = () => {
                 <button
                     @click="submit"
                     :disabled="form.processing"
-                    class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700 disabled:opacity-50"
+                    class="rounded-md border border-[#d4a843] bg-gradient-to-b from-[#b8841f] to-[#8a5e12] px-4 py-2 font-bold tracking-wide text-[#1a120b] uppercase transition hover:from-[#d4a843] hover:to-[#a06d18] disabled:opacity-50"
+                    style="font-family: 'Cinzel', serif"
                 >
-                    {{ form.processing ? 'Envoi...' : 'Envoyer' }}
+                    {{ form.processing ? 'Invocation...' : "Consulter l'oracle" }}
                 </button>
             </div>
 
             <!-- Erreur API -->
             <div
                 v-if="props.error"
-                class="rounded-md bg-red-950/30 p-4 text-red-400"
+                class="rounded-md border border-[#d9603a]/40 bg-[#3a1810]/60 p-4 text-[#d9603a]"
             >
-                Erreur : {{ props.error }}
+                Le sort a échoué : {{ props.error }}
             </div>
 
             <!-- Réponse -->
             <div
                 v-if="props.response"
-                class="rounded-xl border border-neutral-700 p-4"
+                class="rounded-xl border border-[#d4a843]/30 bg-[#241810]/60 p-4"
             >
                 <MarkdownRenderer :content="props.response" />
             </div>
