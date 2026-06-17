@@ -12,6 +12,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/ask', [AskController::class, 'ask'])->name('ask.post');
     Route::get('/ask-stream', [AskStreamController::class, 'index'])->name('stream.index');
     Route::post('/ask-stream', [AskStreamController::class, 'stream'])->name('stream.post');
+    Route::post('/chat/{conversation}/messages/stream', [MessageController::class, 'stream'])->name('messages.stream');
 
     Route::get('/chat', [ConversationController::class, 'index'])->name('chat.index');
     Route::get('/chat/{conversation}', [ConversationController::class, 'show'])->name('chat.show');

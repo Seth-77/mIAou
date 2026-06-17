@@ -1,8 +1,9 @@
 <script setup>
-import { Head, Link, useForm, router } from '@inertiajs/vue3'
+import { Head, Link, router } from '@inertiajs/vue3'
+import { useStream } from '@laravel/stream-vue'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import ChatLoader from '@/components/ChatLoader.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
     conversations: Array,
@@ -11,29 +12,67 @@ const props = defineProps({
     models: Array,
 })
 
-const form = useForm({
-    content: '',
-})
+// Le texte tapé dans le champ de saisie
+const content = ref('')
 
-const modelForm = useForm({
-    model: '',
-})
+// Message de l'utilisateur affiché temporairement pendant le stream
+// (il n'est pas encore rechargé depuis la base via Inertia)
+const streamingUserMessage = ref(null)
+
+// Drapeau : faut-il afficher la réponse streamée (`data`) ?
+// On l'éteint à la fin, une fois les vrais messages rechargés depuis la base,
+// pour éviter d'afficher la réponse en double.
+const showStreaming = ref(false)
+
+// Hook de streaming : `data` contient la réponse de l'IA, recollée
+// automatiquement morceau par morceau.
+const { data, isFetching, isStreaming, send } = useStream(
+    // L'URL est calculée dynamiquement selon la conversation courante
+    computed(() => `/chat/${props.currentConversation?.id}/messages/stream`),
+    {
+        onFinish: () => {
+            // PHASE 4 : le stream est fini, le serveur a tout sauvé en base.
+            // On recharge messages + la conversation (titre) depuis le serveur,
+            // puis on efface les variables temporaires une fois les vraies
+            // données arrivées (pour éviter les doublons à l'écran).
+            router.reload({
+                only: ['messages', 'currentConversation', 'conversations'],
+                onFinish: () => {
+                    // Les vrais messages sont arrivés : on cache la version
+                    // streamée et le message user temporaire (sinon doublon).
+                    showStreaming.value = false
+                    streamingUserMessage.value = null
+                },
+            })
+        },
+        onError: (err) => {
+            console.error('Erreur streaming:', err)
+            showStreaming.value = false
+            streamingUserMessage.value = null
+        },
+    },
+)
 
 const sendMessage = () => {
-    if (!form.content.trim()) return
+    if (!content.value.trim() || isStreaming.value) return
 
-    form.post(`/chat/${props.currentConversation.id}/messages`, {
-        preserveScroll: true,
-        onSuccess: () => form.reset('content'),
-    })
+    // 1. On affiche tout de suite le message de l'utilisateur (temporaire)
+    streamingUserMessage.value = content.value
+    showStreaming.value = true
+
+    // 2. On lance le stream vers le backend
+    send({ content: content.value })
+
+    // 3. On vide le champ de saisie
+    content.value = ''
 }
 
 const changeModel = (event) => {
-    modelForm.model = event.target.value
-    modelForm.patch(`/chat/${props.currentConversation.id}/model`, {
-        preserveScroll: true,
-        preserveState: true,
-    })
+    router.patch(
+        `/chat/${props.currentConversation.id}/model`,
+        { model: event.target.value },
+        { preserveScroll: true, preserveState: true },
+    )
 }
 
 const deleteConversation = (id) => {
@@ -171,6 +210,7 @@ const sidebarOpen = ref(true)
                 <!-- Fil de discussion : colonne centrée et étroite -->
                 <div class="min-h-0 flex-1 overflow-y-auto">
                     <div class="mx-auto w-full max-w-3xl space-y-6 px-4 py-8">
+                        <!-- Messages déjà en base (rechargés via Inertia) -->
                         <div
                             v-for="message in props.messages"
                             :key="message.id"
@@ -189,8 +229,26 @@ const sidebarOpen = ref(true)
                             </div>
                         </div>
 
-                        <!-- Loader pendant l'attente de la réponse -->
-                        <div v-if="form.processing" class="flex justify-start">
+                        <!-- Message utilisateur temporaire (affiché pendant le stream) -->
+                        <div v-if="streamingUserMessage" class="flex justify-end">
+                            <div
+                                class="max-w-[80%] rounded-2xl bg-gradient-to-b from-[#b8841f] to-[#8a5e12] px-4 py-3 leading-relaxed text-[#1a120b]"
+                            >
+                                <MarkdownRenderer :content="streamingUserMessage" />
+                            </div>
+                        </div>
+
+                        <!-- Réponse de l'IA en train d'être streamée -->
+                        <div v-if="showStreaming && data" class="flex justify-start">
+                            <div
+                                class="max-w-full rounded-2xl border border-[#d4a843]/20 bg-[#241810]/70 px-4 py-3 leading-relaxed text-[#e8d9b5]"
+                            >
+                                <MarkdownRenderer :content="data" />
+                            </div>
+                        </div>
+
+                        <!-- Loader : pendant la connexion, avant la première goutte -->
+                        <div v-if="showStreaming && isFetching && !data" class="flex justify-start">
                             <div class="rounded-2xl border border-[#d4a843]/20 bg-[#241810]/70 px-4 py-3">
                                 <ChatLoader />
                             </div>
@@ -205,7 +263,7 @@ const sidebarOpen = ref(true)
                             class="relative flex items-end rounded-2xl border border-[#d4a843]/40 bg-[#241810] shadow-[0_4px_24px_rgba(0,0,0,0.4)] focus-within:border-[#d4a843] transition"
                         >
                             <textarea
-                                v-model="form.content"
+                                v-model="content"
                                 rows="1"
                                 placeholder="Adresse ta requête au Maître du Jeu..."
                                 class="max-h-48 flex-1 resize-none bg-transparent py-4 pr-16 pl-5 text-sm text-[#e8d9b5] placeholder:text-[#e8d9b5]/40 focus:outline-none"
@@ -215,14 +273,14 @@ const sidebarOpen = ref(true)
                             <!-- Bouton plume -->
                             <button
                                 @click="sendMessage"
-                                :disabled="form.processing || !form.content.trim()"
+                                :disabled="isStreaming || !content.trim()"
                                 class="quill-btn absolute right-2.5 bottom-2 grid h-12 w-12 cursor-pointer place-items-center rounded-full transition hover:bg-[#f0c850]/15 disabled:cursor-not-allowed disabled:opacity-30"
                                 title="Confier ton message"
                             >
                                 <svg
                                     viewBox="0 0 100 100"
                                     class="quill-svg h-8 w-8"
-                                    :class="{ 'quill-writing': form.processing }"
+                                    :class="{ 'quill-writing': isStreaming }"
                                     fill="none"
                                     stroke="#f0c850"
                                     stroke-width="5"
@@ -242,9 +300,6 @@ const sidebarOpen = ref(true)
                             </button>
                         </div>
 
-                        <p v-if="form.errors.content" class="mt-2 px-2 text-sm text-[#d9603a]">
-                            {{ form.errors.content }}
-                        </p>
                     </div>
                 </div>
             </template>
