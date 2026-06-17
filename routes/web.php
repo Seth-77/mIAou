@@ -6,6 +6,7 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Settings\InstructionsController;
 use App\Http\Controllers\AskStreamController;
+use App\Http\Controllers\TagController;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/ask', [AskController::class, 'index'])->name('ask.index');
@@ -22,6 +23,9 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/chat/{conversation}', [ConversationController::class, 'destroy'])->name('chat.destroy');
     Route::get('settings/instructions', [InstructionsController::class, 'edit'])->name('instructions.edit');
     Route::patch('settings/instructions', [InstructionsController::class, 'update'])->name('instructions.update');
+    Route::post('/chat/{conversation}/tags', [TagController::class, 'attach'])->name('tags.attach');
+    Route::delete('/chat/{conversation}/tags/{tag}', [TagController::class, 'detach'])->name('tags.detach');
+    Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
 });
 
 Route::inertia('/', 'Welcome')->name('home');

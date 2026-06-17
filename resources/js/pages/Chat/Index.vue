@@ -10,6 +10,8 @@ const props = defineProps({
     currentConversation: Object,
     messages: Array,
     models: Array,
+    tags: Array,            // tous les tags existants (pour filtres + menu)
+    activeTag: Number,      // id du tag actuellement filtré, ou null
 })
 
 // Le texte tapé dans le champ de saisie
@@ -83,7 +85,57 @@ const deleteConversation = (id) => {
     }
 }
 
+// ---- Gestion des tags ----
+
+// Filtrer la liste des conversations par tag (ou tout afficher si null)
+const filterByTag = (tagId) => {
+    router.get('/chat', tagId ? { tag: tagId } : {}, {
+        preserveScroll: true,
+        preserveState: true,
+    })
+}
+
+// Les ids des tags déjà collés sur la conversation ouverte
+const currentTagIds = computed(
+    () => props.currentConversation?.tags?.map((t) => t.id) ?? [],
+)
+
+// Coller un tag sur la conversation ouverte
+const attachTag = (tagId) => {
+    router.post(
+        `/chat/${props.currentConversation.id}/tags`,
+        { tag_id: tagId },
+        { preserveScroll: true, preserveState: true },
+    )
+}
+
+// Retirer un tag de la conversation ouverte
+const detachTag = (tagId) => {
+    router.delete(`/chat/${props.currentConversation.id}/tags/${tagId}`, {
+        preserveScroll: true,
+        preserveState: true,
+    })
+}
+
+// Petit menu d'ajout de tags ouvert/fermé
+const tagMenuOpen = ref(false)
+
 const sidebarOpen = ref(true)
+
+const newTagName = ref('')
+
+const createTag = () => {
+    if (!newTagName.value.trim()) return
+    router.post(
+        '/tags',
+        { name: newTagName.value.trim() },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => { newTagName.value = '' },
+        },
+    )
+}
 </script>
 
 <template>
@@ -110,6 +162,33 @@ const sidebarOpen = ref(true)
                 </Link>
             </div>
 
+            <!-- Barre de filtres par tag -->
+            <div
+                v-if="props.tags && props.tags.length"
+                class="flex flex-wrap gap-1 border-b border-[#d4a843]/25 p-2"
+            >
+                <button
+                    @click="filterByTag(null)"
+                    class="cursor-pointer rounded-full border px-2.5 py-0.5 text-xs transition"
+                    :class="!props.activeTag
+                        ? 'border-[#d4a843] bg-[#d4a843]/20 text-[#f0c850]'
+                        : 'border-[#d4a843]/30 text-[#e8d9b5]/60 hover:border-[#d4a843]/60'"
+                >
+                    Tout
+                </button>
+                <button
+                    v-for="tag in props.tags"
+                    :key="tag.id"
+                    @click="filterByTag(tag.id)"
+                    class="cursor-pointer rounded-full border px-2.5 py-0.5 text-xs transition"
+                    :class="props.activeTag === tag.id
+                        ? 'border-[#d4a843] bg-[#d4a843]/20 text-[#f0c850]'
+                        : 'border-[#d4a843]/30 text-[#e8d9b5]/60 hover:border-[#d4a843]/60'"
+                >
+                    {{ tag.name }}
+                </button>
+            </div>
+
             <nav class="flex-1 overflow-y-auto p-2">
                 <div
                     v-for="conv in props.conversations"
@@ -121,7 +200,19 @@ const sidebarOpen = ref(true)
                         :href="`/chat/${conv.id}`"
                         class="flex-1 truncate px-3 py-2 text-sm"
                     >
-                        {{ conv.title ?? 'Chronique sans nom' }}
+                        <span class="block truncate">{{ conv.title ?? 'Chronique sans nom' }}</span>
+                        <span
+                            v-if="conv.tags && conv.tags.length"
+                            class="mt-1 flex flex-wrap gap-1"
+                        >
+                            <span
+                                v-for="tag in conv.tags"
+                                :key="tag.id"
+                                class="rounded-full bg-[#d4a843]/15 px-1.5 py-0.5 text-[10px] text-[#d4a843]"
+                            >
+                                {{ tag.name }}
+                            </span>
+                        </span>
                     </Link>
 
                     <button
@@ -180,6 +271,48 @@ const sidebarOpen = ref(true)
                     {{ props.currentConversation.title ?? 'Chronique sans nom' }}
                 </h1>
                 <div v-else class="flex-1"></div>
+
+                <!-- Menu des tags de la conversation ouverte -->
+                <div v-if="props.currentConversation" class="relative">
+                    <button
+                        @click="tagMenuOpen = !tagMenuOpen"
+                        class="cursor-pointer rounded-md border border-[#d4a843]/40 bg-[#241810] px-3 py-2 text-xs text-[#e8d9b5] transition hover:border-[#d4a843]"
+                        title="Gérer les étiquettes"
+                    >
+                        🏷 Étiquettes
+                    </button>
+
+                    <!-- Liste déroulante : cliquer un tag l'ajoute ou le retire -->
+                    <div
+                        v-if="tagMenuOpen"
+                        class="absolute right-0 z-20 mt-1 w-48 rounded-md border border-[#d4a843]/40 bg-[#241810] p-1 shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
+                    >
+                        <p
+                            v-if="!props.tags || !props.tags.length"
+                            class="px-2 py-1.5 text-xs text-[#e8d9b5]/50"
+                        >
+                            Aucune étiquette disponible
+                        </p>
+                        <button
+                            v-for="tag in props.tags"
+                            :key="tag.id"
+                            @click="currentTagIds.includes(tag.id) ? detachTag(tag.id) : attachTag(tag.id)"
+                            class="flex w-full cursor-pointer items-center justify-between rounded px-2 py-1.5 text-left text-xs transition hover:bg-[#3a2817]"
+                        >
+                            <span>{{ tag.name }}</span>
+                            <span v-if="currentTagIds.includes(tag.id)" class="text-[#f0c850]">✓</span>
+                        </button>
+                         <div class="mt-1 border-t border-[#d4a843]/20 p-1">
+                            <input
+                                v-model="newTagName"
+                                @keydown.enter.prevent="createTag"
+                                type="text"
+                                placeholder="Nouvelle étiquette..."
+                                class="w-full rounded bg-[#1a120b] px-2 py-1.5 text-xs text-[#e8d9b5] placeholder:text-[#e8d9b5]/40 focus:outline-none"
+                            />
+                        </div>
+                    </div>
+                </div>
 
                 <select
                     v-if="props.currentConversation"
